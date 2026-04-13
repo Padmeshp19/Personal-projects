@@ -202,6 +202,11 @@ input:not([type="checkbox"]) {
   padding-right:16px;
 }
 
+@keyframes fadeInCard{
+  from{ opacity:0; transform:translateY(20px); }
+  to{   opacity:1; transform:translateY(0); }
+}
+
 /* ===== FILE CARD ===== */
 .fileCard{
   position:relative;
@@ -211,6 +216,8 @@ input:not([type="checkbox"]) {
   text-align:center;
   overflow:visible;
   transition:background 0.25s, box-shadow 0.25s;
+  opacity:0;
+  animation:fadeInCard 0.5s ease forwards;
 }
 
 .fileCard.hovered{
@@ -437,7 +444,7 @@ input:checked + .toggle-slider .icon-on{  opacity:1; }
 <!-- Glass confirm modal -->
 <div id="confirmOverlay">
   <div id="confirmBox">
-    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-icon"></div>
     <p>Delete this note?</p>
     <div class="confirm-btns">
       <button id="confirmYes">Delete</button>
@@ -720,6 +727,9 @@ function loadNotes(){
       card.appendChild(h3);
       card.appendChild(p);
       card.appendChild(a);
+
+      const idx = container.children.length;
+      card.style.animationDelay = (idx * 0.08) + "s";
 
       container.appendChild(card);
     });

@@ -79,29 +79,27 @@ h1{
   font-weight:600;
   color:white;
   margin-bottom:20px;
+  opacity:0.85;
   letter-spacing:0.02em;
-  opacity:0;
-  animation: subtitleFadeIn 0.8s ease-out 1.2s forwards;
-}
-.cursor{
-  display:inline-block;
-  color:white;
-  font-weight:300;
-  animation: blink 1s step-end infinite;
-  margin-left:2px;
-}
-@keyframes subtitleFadeIn{
-  from{ opacity:0; transform:translateY(10px); }
-  to{   opacity:0.85; transform:translateY(0); }
-}
-@keyframes blink{
-  0%,100%{ opacity:1; }
-  50%{     opacity:0; }
 }
 input{
   width:100%;margin:10px 0;padding:12px;border-radius:10px;
-  border:none;background:rgba(255,255,255,0.08);color:white;
+  border:none;background:rgba(255,255,255,0.12);color:white;
   font-family:'Poppins',sans-serif;box-sizing:border-box;
+  -webkit-appearance:none;
+  appearance:none;
+  outline:none;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active{
+  -webkit-box-shadow:0 0 0px 1000px rgba(255,255,255,0.12) inset !important;
+  -webkit-text-fill-color:white !important;
+  caret-color:white;
+  border-radius:10px !important;
+  border:none !important;
+  transition:background-color 5000s ease-in-out 0s;
 }
 .btn{
   width:100%;padding:12px;margin-top:10px;border:none;
@@ -172,7 +170,7 @@ input{
 
 <div class="container">
 <h1>Share Notes. Ace Together.</h1>
-<p class="subtitle"><span id="subtitleText"></span><span class="cursor">|</span></p>
+<p class="subtitle">Public space. Choose what you share.</p>
 
 <div class="card">
 <input id="email" placeholder="Email">
@@ -273,20 +271,6 @@ if(!isMobile){
   }
   animateGlow();
 }
-
-/* TYPEWRITER SUBTITLE */
-const subtitleFull = "Public space. Choose what you share.";
-const subtitleEl = document.getElementById("subtitleText");
-let charIndex = 0;
-
-function typeSubtitle(){
-  if(charIndex < subtitleFull.length){
-    subtitleEl.textContent += subtitleFull[charIndex];
-    charIndex++;
-    setTimeout(typeSubtitle, 45);
-  }
-}
-setTimeout(typeSubtitle, 1200);
 </script>
 
 </body>
