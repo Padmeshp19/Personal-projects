@@ -67,7 +67,7 @@ h1{
   font-family:'Poppins',sans-serif;
   font-size:3.5rem;
   font-weight:700;
-  margin-bottom:8px;
+  margin-bottom:5px;
   background:linear-gradient(to right, #7b2ff7, #9f44ff);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
@@ -75,12 +75,28 @@ h1{
 }
 .subtitle{
   font-family:'Poppins',sans-serif;
-  font-size:1.15rem;
+  font-size:2rem;
   font-weight:600;
   color:white;
-  margin-bottom:28px;
-  opacity:0.85;
+  margin-bottom:20px;
   letter-spacing:0.02em;
+  opacity:0;
+  animation: subtitleFadeIn 0.8s ease-out 1.2s forwards;
+}
+.cursor{
+  display:inline-block;
+  color:white;
+  font-weight:300;
+  animation: blink 1s step-end infinite;
+  margin-left:2px;
+}
+@keyframes subtitleFadeIn{
+  from{ opacity:0; transform:translateY(10px); }
+  to{   opacity:0.85; transform:translateY(0); }
+}
+@keyframes blink{
+  0%,100%{ opacity:1; }
+  50%{     opacity:0; }
 }
 input{
   width:100%;margin:10px 0;padding:12px;border-radius:10px;
@@ -156,7 +172,7 @@ input{
 
 <div class="container">
 <h1>Share Notes. Ace Together.</h1>
-<p class="subtitle">Your notes. Your rules. Share what matters.</p>
+<p class="subtitle"><span id="subtitleText"></span><span class="cursor">|</span></p>
 
 <div class="card">
 <input id="email" placeholder="Email">
@@ -222,10 +238,56 @@ function googleLogin(){
 }
 
 /* CURSOR GLOW */
-document.addEventListener("mousemove",e=>{
-  glow.style.left=e.clientX+"px";
-  glow.style.top=e.clientY+"px";
-});
+const isMobile = window.matchMedia("(pointer: coarse)").matches;
+
+if(!isMobile){
+  document.addEventListener("mousemove", e => {
+    glow.style.left = e.clientX + "px";
+    glow.style.top  = e.clientY + "px";
+  });
+} else {
+  let targetX = window.innerWidth / 2;
+  let targetY = window.innerHeight / 2;
+  let currentX = targetX;
+  let currentY = targetY;
+
+  document.addEventListener("touchstart", e => {
+    targetX = e.touches[0].clientX;
+    targetY = e.touches[0].clientY;
+  }, { passive: true });
+
+  function pickNewTarget(){
+    targetX = Math.random() * window.innerWidth;
+    targetY = Math.random() * window.innerHeight;
+    const next = 3000 + Math.random() * 2000;
+    setTimeout(pickNewTarget, next);
+  }
+  pickNewTarget();
+
+  function animateGlow(){
+    currentX += (targetX - currentX) * 0.02;
+    currentY += (targetY - currentY) * 0.02;
+    glow.style.left = currentX + "px";
+    glow.style.top  = currentY + "px";
+    requestAnimationFrame(animateGlow);
+  }
+  animateGlow();
+}
+
+/* TYPEWRITER SUBTITLE */
+const subtitleFull = " Public space. Choose what you share.";
+const subtitleEl = document.getElementById("subtitleText");
+let charIndex = 0;
+
+function typeSubtitle(){
+  if(charIndex < subtitleFull.length){
+    subtitleEl.textContent += subtitleFull[charIndex];
+    charIndex++;
+    setTimeout(typeSubtitle, 45);
+  }
+}
+// Start after heading fade-in delay (1.2s)
+setTimeout(typeSubtitle, 1200);
 </script>
 
 </body>

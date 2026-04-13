@@ -155,7 +155,7 @@ body::after{
   width:320px;
   padding:24px;
   border-radius:20px;
-  background:rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.10);
   display:flex;
   flex-direction:column;
   gap:14px;
@@ -207,7 +207,7 @@ input:not([type="checkbox"]) {
   position:relative;
   padding:20px;
   border-radius:18px;
-  background:rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.10);
   text-align:center;
   overflow:visible;
   transition:background 0.25s, box-shadow 0.25s;
@@ -262,6 +262,97 @@ input:not([type="checkbox"]) {
   align-items:center;
   justify-content:center;
   gap:12px;
+}
+
+/* ===== TOAST NOTIFICATION (bottom-right) ===== */
+#toast{
+  position:fixed;
+  bottom:28px;
+  right:28px;
+  padding:14px 22px;
+  border-radius:14px;
+  color:white;
+  font-family:'Poppins',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  z-index:99999;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.35s ease, transform 0.35s ease;
+  pointer-events:none;
+  backdrop-filter:blur(10px);
+}
+#toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+#toast.success{ background:linear-gradient(135deg,rgba(76,175,80,0.85),rgba(139,195,74,0.85)); border:1px solid rgba(255,255,255,0.15); }
+#toast.error{   background:linear-gradient(135deg,rgba(244,67,54,0.85),rgba(233,30,99,0.85));  border:1px solid rgba(255,255,255,0.15); }
+#toast.info{    background:linear-gradient(135deg,rgba(123,47,247,0.85),rgba(159,68,255,0.85)); border:1px solid rgba(255,255,255,0.15); }
+
+/* ===== GLASS CONFIRM MODAL ===== */
+#confirmOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(6px);
+  z-index:99998;
+  align-items:center;
+  justify-content:center;
+}
+#confirmOverlay.show{
+  display:flex;
+}
+#confirmBox{
+  background:rgba(255,255,255,0.07);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:24px;
+  padding:36px 40px;
+  text-align:center;
+  max-width:340px;
+  width:90%;
+  box-shadow:0 8px 48px rgba(0,0,0,0.5);
+  animation:fadeInUp 0.3s ease;
+}
+#confirmBox p{
+  font-family:'Poppins',sans-serif;
+  font-size:1.05rem;
+  font-weight:600;
+  color:white;
+  margin:0 0 28px 0;
+}
+#confirmBox .confirm-icon{
+  font-size:2.2rem;
+  margin-bottom:14px;
+}
+.confirm-btns{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+}
+.confirm-btns button{
+  padding:11px 28px;
+  border:none;
+  border-radius:12px;
+  font-family:'Poppins',sans-serif;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.confirm-btns button:hover{ transform:translateY(-2px); }
+#confirmYes{
+  background:linear-gradient(90deg,#ff4b4b,#ff6b6b);
+  color:white;
+  box-shadow:0 4px 16px rgba(255,75,75,0.4);
+}
+#confirmNo{
+  background:rgba(255,255,255,0.12);
+  color:white;
+  border:1px solid rgba(255,255,255,0.2);
 }
 
 /* ===== MODERN TOGGLE SWITCH ===== */
@@ -340,6 +431,21 @@ input:checked + .toggle-slider .icon-on{  opacity:1; }
 <!-- cursor glow -->
 <div id="glow"></div>
 
+<!-- Toast notification -->
+<div id="toast"></div>
+
+<!-- Glass confirm modal -->
+<div id="confirmOverlay">
+  <div id="confirmBox">
+    <div class="confirm-icon">🗑️</div>
+    <p>Delete this note?</p>
+    <div class="confirm-btns">
+      <button id="confirmYes">Delete</button>
+      <button id="confirmNo">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="logo">NoteVault</div>
 <button class="logout" onclick="logout()">Logout</button>
 
@@ -371,13 +477,52 @@ input:checked + .toggle-slider .icon-on{  opacity:1; }
 <script>
 
 /* ===== CURSOR GLOW ===== */
-document.addEventListener("mousemove", e => {
+const isMobile = window.matchMedia("(pointer: coarse)").matches;
+
+if(!isMobile){
+  // Desktop: follow mouse
+  document.addEventListener("mousemove", e => {
+    const glow = document.getElementById("glow");
+    if(glow){
+      glow.style.left = e.clientX + "px";
+      glow.style.top  = e.clientY + "px";
+    }
+  });
+} else {
+  // Mobile: move to tap position, then drift randomly
   const glow = document.getElementById("glow");
-  if (glow) {
-    glow.style.left = e.clientX + "px";
-    glow.style.top  = e.clientY + "px";
+  let targetX = window.innerWidth / 2;
+  let targetY = window.innerHeight / 2;
+  let currentX = targetX;
+  let currentY = targetY;
+
+  // On tap, snap to touch position
+  document.addEventListener("touchstart", e => {
+    targetX = e.touches[0].clientX;
+    targetY = e.touches[0].clientY;
+  }, { passive: true });
+
+  // Pick a new random target every 3-5 seconds
+  function pickNewTarget(){
+    targetX = Math.random() * window.innerWidth;
+    targetY = Math.random() * window.innerHeight;
+    const next = 3000 + Math.random() * 2000;
+    setTimeout(pickNewTarget, next);
   }
-});
+  pickNewTarget();
+
+  // Smoothly interpolate glow toward target every frame
+  function animateGlow(){
+    currentX += (targetX - currentX) * 0.02;
+    currentY += (targetY - currentY) * 0.02;
+    if(glow){
+      glow.style.left = currentX + "px";
+      glow.style.top  = currentY + "px";
+    }
+    requestAnimationFrame(animateGlow);
+  }
+  animateGlow();
+}
 
 /* ===== ADMIN ===== */
 const ADMIN_EMAIL = "padmeshp19@gmail.com";
@@ -394,7 +539,7 @@ firebase.initializeApp(firebaseConfig);
 const db   = firebase.firestore();
 const auth = firebase.auth();
 
-/* ===== AUTH ===== */
+/* == AUTH == */
 auth.onAuthStateChanged(user => {
   if (!user) {
     location.href = "index.html";
@@ -405,53 +550,117 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+/* ===== TOAST (bottom-right in-app notification) ===== */
+function showToast(message, type = "info") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = type + " show";
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.className = type;
+  }, 3000);
+}
+
+/* ===== GLASS CONFIRM MODAL ===== */
+function showConfirm(onConfirm) {
+  const overlay = document.getElementById("confirmOverlay");
+  overlay.classList.add("show");
+
+  const yes = document.getElementById("confirmYes");
+  const no  = document.getElementById("confirmNo");
+
+  // Clone to remove old listeners
+  const newYes = yes.cloneNode(true);
+  const newNo  = no.cloneNode(true);
+  yes.parentNode.replaceChild(newYes, yes);
+  no.parentNode.replaceChild(newNo, no);
+
+  newYes.onclick = () => {
+    overlay.classList.remove("show");
+    onConfirm();
+  };
+  newNo.onclick = () => {
+    overlay.classList.remove("show");
+  };
+}
+
 /* ===== LOGOUT ===== */
 function logout(){
   auth.signOut().then(() => location.href = "index.html");
 }
 
 /* ===== UPLOAD ===== */
+let isUploading = false;
+
 function upload(){
+  if(isUploading) return; // block multiple clicks
+
   const file    = document.getElementById("file").files[0];
   const title   = document.getElementById("title").value;
   const subject = document.getElementById("subject").value;
   const isPublic = document.getElementById("publicToggle").checked;
 
-  if (!file){ alert("Select file"); return; }
+  if (!file){ showToast("Please select a file", "error"); return; }
+
+  isUploading = true;
+  const uploadBtn = document.querySelector('.btn');
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = "Uploading...";
 
   const reader = new FileReader();
 
   reader.onload = async function(e){
-    await db.collection("notes").add({
-      userId:    auth.currentUser.uid,
-      file:      e.target.result,
-      fileName:  file.name,
-      title:     title,
-      subject:   subject,
-      visibility: isPublic ? "public" : "private",
-      createdAt: Date.now()
-    });
+    try {
+      await db.collection("notes").add({
+        userId:    auth.currentUser.uid,
+        file:      e.target.result,
+        fileName:  file.name,
+        title:     title,
+        subject:   subject,
+        visibility: isPublic ? "public" : "private",
+        createdAt: Date.now()
+      });
 
-    alert("Uploaded!");
+      showToast("File uploaded successfully! ✓", "success");
 
-    document.getElementById("file").value    = "";
-    document.getElementById("title").value   = "";
-    document.getElementById("subject").value = "";
-    document.getElementById("publicToggle").checked = false;
+      document.getElementById("file").value    = "";
+      document.getElementById("title").value   = "";
+      document.getElementById("subject").value = "";
+      document.getElementById("publicToggle").checked = false;
 
-    loadNotes();
+    } catch (error) {
+      console.error("Upload error:", error);
+      showToast("Upload failed. Please try again.", "error");
+    } finally {
+      isUploading = false;
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "Upload";
+      loadNotes();
+    }
   };
 
   reader.readAsDataURL(file);
 }
 
 /* ===== DELETE ===== */
-function deleteNote(id){
-  if (!confirm("Delete this note?")) return;
+function deleteNote(id, ownerId){
+  const currentUser = auth.currentUser;
+  if(currentUser.uid !== ownerId && currentUser.email !== ADMIN_EMAIL){
+    showToast("You can only delete your own notes.", "error");
+    return;
+  }
 
-  db.collection("notes").doc(id).delete()
-    .then(()  => { alert("Deleted successfully"); loadNotes(); })
-    .catch(err => { console.error(err); alert("Delete failed"); });
+  showConfirm(() => {
+    db.collection("notes").doc(id).delete()
+      .then(() => {
+        showToast("Note deleted successfully! ✓", "success");
+        loadNotes();
+      })
+      .catch(err => {
+        console.error(err);
+        showToast("Delete failed. Please try again.", "error");
+      });
+  });
 }
 
 /* ===== LOAD NOTES ===== */
@@ -478,12 +687,14 @@ function loadNotes(){
       del.textContent = "×";
       del.onclick = function(e){
         e.stopPropagation();
-        deleteNote(doc.id);
+        deleteNote(doc.id, data.userId);
       };
+
+      const canDelete = data.userId === auth.currentUser.uid || auth.currentUser.email === ADMIN_EMAIL;
 
       card.addEventListener("mouseenter", function(){
         card.classList.add("hovered");
-        del.style.display = "flex";
+        if(canDelete) del.style.display = "flex";
       });
       card.addEventListener("mouseleave", function(){
         card.classList.remove("hovered");
