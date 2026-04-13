@@ -162,6 +162,30 @@ input{
   80% { background-position: 100px 20px; }
   100%{ background-position: 0px 0px; }
 }
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;
+  bottom:28px;
+  right:28px;
+  padding:14px 22px;
+  border-radius:14px;
+  color:white;
+  font-family:'Poppins',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  z-index:99999;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.35s ease, transform 0.35s ease;
+  pointer-events:none;
+  backdrop-filter:blur(10px);
+}
+#toast.show{ opacity:1; transform:translateY(0); }
+#toast.success{ background:linear-gradient(135deg,rgba(76,175,80,0.85),rgba(139,195,74,0.85)); border:1px solid rgba(255,255,255,0.15); }
+#toast.error{   background:linear-gradient(135deg,rgba(244,67,54,0.85),rgba(233,30,99,0.85));  border:1px solid rgba(255,255,255,0.15); }
+#toast.info{    background:linear-gradient(135deg,rgba(123,47,247,0.85),rgba(159,68,255,0.85)); border:1px solid rgba(255,255,255,0.15); }
 </style>
 </head>
 
@@ -169,6 +193,7 @@ input{
 
 <div class="logo">NoteVault</div>
 <div id="glow"></div>
+<div id="toast"></div>
 
 <div class="container">
 <h1>Share Notes. Ace Together.</h1>
@@ -189,6 +214,27 @@ Continue with Google
 </div>
 
 <script>
+/* TOAST */
+function showToast(message, type="error"){
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = type + " show";
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.className = type; }, 4000);
+}
+function getMsg(e){
+  const code = e.code || "";
+  const msg  = (e.message || "").toLowerCase();
+  if(code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/invalid-login-credentials"||msg.includes("invalid_login_credentials")||msg.includes("invalid-login-credentials")||msg.includes("password is invalid")) return "Incorrect email or password.";
+  if(code==="auth/user-not-found"||msg.includes("user-not-found")) return "No account found with this email.";
+  if(code==="auth/email-already-in-use") return "Email already in use.";
+  if(code==="auth/weak-password") return "Password must be at least 6 characters.";
+  if(code==="auth/too-many-requests") return "Too many attempts. Please try again later.";
+  if(code==="auth/network-request-failed") return "Network error. Check your connection.";
+  if(code==="auth/popup-closed-by-user") return "Sign-in popup was closed.";
+  return "Something went wrong. Please try again.";
+}
+
 const firebaseConfig={
   apiKey:"AIzaSyCL3TX71MDaVLUqFHG6nkKRniol16kefV0",
   authDomain:"notevalt-1be63.firebaseapp.com",
@@ -209,14 +255,14 @@ auth.onAuthStateChanged(user=>{
 function signup(){
   auth.createUserWithEmailAndPassword(email.value,password.value)
   .then(()=>location.href="home.html")
-  .catch(e=>alert(e.message));
+  .catch(e=>showToast(getMsg(e)));
 }
 
 /* LOGIN */
 function login(){
   auth.signInWithEmailAndPassword(email.value,password.value)
   .then(()=>location.href="home.html")
-  .catch(e=>alert(e.message));
+  .catch(e=>showToast(getMsg(e)));
 }
 
 /* GOOGLE LOGIN (STORE NAME) */
@@ -234,7 +280,7 @@ function googleLogin(){
     }
 
     location.href="home.html";
-  }).catch(e=>alert(e.message));
+  }).catch(e=>showToast(getMsg(e)));
 }
 
 /* CURSOR GLOW */
@@ -278,7 +324,6 @@ if(!isMobile){
 const subtitleFull = "Public space. Choose what you share.";
 const subtitleEl = document.getElementById("subtitleText");
 let charIndex = 0;
-
 function typeSubtitle(){
   if(charIndex < subtitleFull.length){
     subtitleEl.textContent += subtitleFull[charIndex];
