@@ -8,8 +8,10 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<style>
+<!-- PDF.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
+<style>
 /* ===== BODY ===== */
 body{
   margin:0;
@@ -46,42 +48,43 @@ body::after{
   animation: moveStars3 65s ease-in-out infinite;
 }
 
+/* ===== SCROLLBAR STYLING (GLOBAL) ===== */
+::-webkit-scrollbar{ width:6px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg, #7b2ff7, #9f44ff);
+  border-radius:10px;
+}
+::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg, #9f44ff, #7b2ff7);
+}
+
+/* Firefox */
+*{
+  scrollbar-width: thin;
+  scrollbar-color: #8b36ff transparent;
+}
+
 /* ===== ANIMATIONS & FONTS ===== */
-@keyframes fadeInUp{
-  from{ opacity:0; transform:translateY(30px); }
-  to{ opacity:1; transform:translateY(0); }
-}
-@keyframes pulse{
-  0%,100%{ opacity:1; }
-  50%{ opacity:0.8; }
-}
+@keyframes fadeInUp{ from{ opacity:0; transform:translateY(30px);} to{ opacity:1; transform:translateY(0);} }
+@keyframes pulse{ 0%,100%{ opacity:1;} 50%{ opacity:0.8;} }
 @keyframes moveStars1{
-  0%  { background-position: 0px 0px; }
-  15% { background-position: 80px -40px; }
-  30% { background-position: -60px 110px; }
-  45% { background-position: 130px 70px; }
-  60% { background-position: -90px -130px; }
-  75% { background-position: 50px 160px; }
-  90% { background-position: -140px 30px; }
-  100%{ background-position: 0px 0px; }
+  0%{ background-position:0px 0px;} 15%{ background-position:80px -40px;}
+  30%{ background-position:-60px 110px;} 45%{ background-position:130px 70px;}
+  60%{ background-position:-90px -130px;} 75%{ background-position:50px 160px;}
+  90%{ background-position:-140px 30px;} 100%{ background-position:0px 0px;}
 }
 @keyframes moveStars2{
-  0%  { background-position: 0px 0px; }
-  20% { background-position: -70px 90px; }
-  40% { background-position: 110px -50px; }
-  55% { background-position: -30px -120px; }
-  70% { background-position: 90px 60px; }
-  85% { background-position: -120px 40px; }
-  100%{ background-position: 0px 0px; }
+  0%{ background-position:0px 0px;} 20%{ background-position:-70px 90px;}
+  40%{ background-position:110px -50px;} 55%{ background-position:-30px -120px;}
+  70%{ background-position:90px 60px;} 85%{ background-position:-120px 40px;}
+  100%{ background-position:0px 0px;}
 }
 @keyframes moveStars3{
-  0%  { background-position: 0px 0px; }
-  10% { background-position: 40px 70px; }
-  25% { background-position: -80px -30px; }
-  50% { background-position: 60px -90px; }
-  65% { background-position: -50px 100px; }
-  80% { background-position: 100px 20px; }
-  100%{ background-position: 0px 0px; }
+  0%{ background-position:0px 0px;} 10%{ background-position:40px 70px;}
+  25%{ background-position:-80px -30px;} 50%{ background-position:60px -90px;}
+  65%{ background-position:-50px 100px;} 80%{ background-position:100px 20px;}
+  100%{ background-position:0px 0px;}
 }
 
 /* ===== CURSOR GLOW ===== */
@@ -106,21 +109,6 @@ body::after{
   font-weight:700;
   z-index:10;
   font-family:'Poppins',sans-serif;
-}
-
-/* ===== WELCOME TEXT ===== */
-#welcome{
-  font-family:'Poppins',sans-serif;
-  font-size:2.5rem;
-  font-weight:700;
-  text-align:center;
-  width:100%;
-  margin-bottom:30px;
-  background:linear-gradient(to right, #7b2ff7, #9f44ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:pulse 2s infinite;
-  padding:0 20px;
 }
 
 .logout{
@@ -150,6 +138,21 @@ body::after{
   width:100%;
 }
 
+/* ===== WELCOME TEXT ===== */
+#welcome{
+  font-family:'Poppins',sans-serif;
+  font-size:2.5rem;
+  font-weight:700;
+  text-align:center;
+  width:100%;
+  margin-bottom:30px;
+  background:linear-gradient(to right, #7b2ff7, #9f44ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:pulse 2s infinite;
+  padding:0 20px;
+}
+
 /* ===== UPLOAD CARD ===== */
 .card{
   width:320px;
@@ -175,6 +178,7 @@ input:not([type="checkbox"]) {
   box-sizing:border-box;
   margin:0;
 }
+input::placeholder{ color:rgba(255,255,255,0.5); }
 
 /* ===== BUTTON ===== */
 .btn{
@@ -186,7 +190,48 @@ input:not([type="checkbox"]) {
   color:white;
   cursor:pointer;
   margin:0;
+  font-weight:700;
+  transition:0.2s;
 }
+.btn:hover{ transform:translateY(-2px); box-shadow:0 0 20px rgba(123,47,247,0.4); }
+.btn:disabled{ opacity:0.6; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ===== SEARCH BAR ===== */
+.search-container{
+  margin-top:22px;
+  width:380px;
+  max-width:90%;
+  position:relative;
+}
+.search-icon{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  width:18px;
+  height:18px;
+  pointer-events:none;
+  opacity:0.6;
+}
+.search-bar{
+  width:100%;
+  padding:14px 18px 14px 44px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(16px);
+  color:white;
+  font-size:14px;
+  box-sizing:border-box;
+  transition:all 0.3s ease;
+}
+.search-bar:focus{
+  outline:none;
+  background:rgba(255,255,255,0.1);
+  border-color:rgba(123,47,247,0.5);
+  box-shadow:0 0 20px rgba(123,47,247,0.2);
+}
+.search-bar::placeholder{ color:rgba(255,255,255,0.4); }
 
 /* ===== GRID ===== */
 #files{
@@ -196,18 +241,12 @@ input:not([type="checkbox"]) {
   gap:25px;
   width:90%;
   max-width:1200px;
-  padding-bottom:80px;
-  padding-top:16px;
-  padding-left:16px;
-  padding-right:16px;
-}
-
-@keyframes fadeInCard{
-  from{ opacity:0; transform:translateY(20px); }
-  to{   opacity:1; transform:translateY(0); }
+  padding:16px 16px 80px 16px;
 }
 
 /* ===== FILE CARD ===== */
+@keyframes fadeInCard{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
+
 .fileCard{
   position:relative;
   padding:20px;
@@ -219,10 +258,35 @@ input:not([type="checkbox"]) {
   opacity:0;
   animation:fadeInCard 0.5s ease forwards;
 }
-
 .fileCard.hovered{
   background:rgba(123,47,247,0.18);
   box-shadow:0 0 24px rgba(123,47,247,0.35);
+}
+
+/* ===== PREVIEW ICON ===== */
+.previewIcon{
+  position:absolute;
+  top:-10px;
+  left:-10px;
+  width:32px;
+  height:32px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:rgba(0,0,0,0.5);
+  border:none;
+  color:white;
+  cursor:pointer;
+  z-index:99998;
+  box-shadow:0 0 12px rgba(0,0,0,0.6);
+  transition:all 0.2s ease;
+  padding:0;
+}
+.previewIcon:hover{
+  transform:scale(1.1);
+  background:rgba(0,0,0,0.7);
+  box-shadow:0 0 16px rgba(0,0,0,0.8);
 }
 
 /* ===== DELETE BUTTON ===== */
@@ -230,26 +294,36 @@ input:not([type="checkbox"]) {
   position:absolute;
   top:-10px;
   right:-10px;
-  width:28px;
-  height:28px;
+  width:32px;
+  height:32px;
   display:none;
   align-items:center;
   justify-content:center;
   border-radius:50%;
   background:#ff6b6b;
-  border:2px solid #fff;
+  border:none;
   color:#fff;
-  font-size:20px;
-  font-weight:bold;
   cursor:pointer;
   z-index:99999;
   box-shadow:0 0 12px rgba(255,107,107,0.8);
   transition:all 0.2s ease;
+  padding:0;
 }
 .deleteIcon:hover{
   background:#ff5252;
   box-shadow:0 0 16px rgba(255,82,82,0.9);
   transform:scale(1.1);
+}
+
+/* ===== ICON SVG ===== */
+.icon-svg{
+  width:18px;
+  height:18px;
+  stroke:white;
+  stroke-width:1.5;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 
 /* ===== DOWNLOAD BUTTON ===== */
@@ -261,7 +335,9 @@ input:not([type="checkbox"]) {
   background:linear-gradient(90deg,#7b2ff7,#9f44ff);
   color:white;
   cursor:pointer;
+  transition:0.2s;
 }
+.downloadBtn:hover{ transform:translateY(-2px); box-shadow:0 0 16px rgba(123,47,247,0.4); }
 
 /* ===== TOGGLE ROW ===== */
 .toggle-row{
@@ -271,7 +347,7 @@ input:not([type="checkbox"]) {
   gap:12px;
 }
 
-/* ===== TOAST NOTIFICATION (bottom-right) ===== */
+/* ===== TOAST ===== */
 #toast{
   position:fixed;
   bottom:28px;
@@ -290,13 +366,10 @@ input:not([type="checkbox"]) {
   pointer-events:none;
   backdrop-filter:blur(10px);
 }
-#toast.show{
-  opacity:1;
-  transform:translateY(0);
-}
+#toast.show{ opacity:1; transform:translateY(0); }
 #toast.success{ background:linear-gradient(135deg,rgba(76,175,80,0.85),rgba(139,195,74,0.85)); border:1px solid rgba(255,255,255,0.15); }
-#toast.error{   background:linear-gradient(135deg,rgba(244,67,54,0.85),rgba(233,30,99,0.85));  border:1px solid rgba(255,255,255,0.15); }
-#toast.info{    background:linear-gradient(135deg,rgba(123,47,247,0.85),rgba(159,68,255,0.85)); border:1px solid rgba(255,255,255,0.15); }
+#toast.error{ background:linear-gradient(135deg,rgba(244,67,54,0.85),rgba(233,30,99,0.85)); border:1px solid rgba(255,255,255,0.15); }
+#toast.info{ background:linear-gradient(135deg,rgba(123,47,247,0.85),rgba(159,68,255,0.85)); border:1px solid rgba(255,255,255,0.15); }
 
 /* ===== GLASS CONFIRM MODAL ===== */
 #confirmOverlay{
@@ -309,9 +382,7 @@ input:not([type="checkbox"]) {
   align-items:center;
   justify-content:center;
 }
-#confirmOverlay.show{
-  display:flex;
-}
+#confirmOverlay.show{ display:flex; }
 #confirmBox{
   background:rgba(255,255,255,0.07);
   backdrop-filter:blur(24px);
@@ -330,10 +401,6 @@ input:not([type="checkbox"]) {
   font-weight:600;
   color:white;
   margin:0 0 28px 0;
-}
-#confirmBox .confirm-icon{
-  font-size:2.2rem;
-  margin-bottom:14px;
 }
 .confirm-btns{
   display:flex;
@@ -362,6 +429,209 @@ input:not([type="checkbox"]) {
   border:1px solid rgba(255,255,255,0.2);
 }
 
+/* ===== PREVIEW MODAL ===== */
+#previewOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(8px);
+  z-index:99997;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  overflow:hidden;
+}
+#previewOverlay.show{ display:flex; }
+
+#previewBox{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:20px;
+  max-width:680px;
+  width:100%;
+  max-height:82vh;
+  box-shadow:0 8px 48px rgba(0,0,0,0.5);
+  animation:fadeInUp 0.3s ease;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.previewHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:22px 22px 16px 22px;
+  flex-shrink:0;
+  width:100%;
+  box-sizing:border-box;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.backBtn{
+  width:32px;
+  height:32px;
+  min-width:32px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.1);
+  border:none;
+  border-radius:50%;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+  transition:all 0.2s;
+  flex-shrink:0;
+}
+.backBtn.show{ display:flex !important; }
+.backBtn:hover{ background:rgba(123,47,247,0.3); transform:scale(1.1); }
+
+#previewTitle{
+  font-size:16px;
+  font-weight:700;
+  color:rgba(255,255,255,0.9);
+  flex:1;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.previewClose{
+  width:32px;
+  height:32px;
+  min-width:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.1);
+  border:none;
+  border-radius:50%;
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  transition:all 0.2s;
+  flex-shrink:0;
+}
+.previewClose:hover{ background:rgba(255,107,107,0.3); color:#ff6b6b; transform:scale(1.1); }
+
+/* This is the ONLY scrolling area inside the modal. */
+.previewContentArea{
+  padding:18px 22px 22px 22px;
+  overflow-y:auto;
+  flex:1;
+}
+
+#previewContent{
+  color:rgba(255,255,255,0.86);
+  line-height:1.65;
+  word-break:break-word;
+  font-size:13px;
+  white-space:pre-wrap;
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+}
+
+#previewImage{
+  max-width:100%;
+  height:auto;
+  border-radius:10px;
+  display:none;
+  object-fit:contain;
+}
+
+#pdfPreviewContainer{
+  background:rgba(0,0,0,0.25);
+  border-radius:12px;
+  padding:10px;
+  display:none;
+  text-align:center;
+}
+#pdfCanvas{ max-width:100%; border-radius:10px; }
+
+.previewActions{
+  display:flex;
+  gap:12px;
+  padding:14px 22px 22px 22px;
+  border-top:1px solid rgba(255,255,255,0.1);
+  flex-shrink:0;
+}
+
+.aiSummaryBtn{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#7b2ff7,#9f44ff);
+  color:white;
+  cursor:pointer;
+  font-weight:700;
+  transition:0.2s;
+  font-family:'Poppins',sans-serif;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.aiSummaryBtn:hover{ transform:translateY(-2px); box-shadow:0 0 16px rgba(123,47,247,0.4); }
+.aiSummaryBtn:disabled{ opacity:0.6; cursor:not-allowed; transform:none; box-shadow:none; }
+.aiSummaryBtn.show-ai{ display:flex; }
+
+/* ===== CLEAN SUMMARY TYPOGRAPHY (NO ICONS) ===== */
+.summaryWrap{
+  font-family:'Poppins',sans-serif;
+  color:rgba(255,255,255,0.92);
+  line-height:1.55;
+  font-size:13.5px;
+}
+
+/* FIX: remove default h3 margins causing big gaps */
+.summaryWrap h3{
+  margin:0;
+}
+.summaryWrap p{
+  margin:0;
+}
+
+.summaryTitle{
+  font-size:15px;
+  font-weight:700;
+  margin:0 0 10px 0;
+  letter-spacing:0.2px;
+}
+
+/* FIX: reduce section gaps */
+.summarySection{
+  margin:10px 0 0 0;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.summaryLabel{
+  display:block;
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.55);
+  margin:0 0 4px 0;
+}
+.summaryValue{
+  margin:0;
+  color:rgba(255,255,255,0.9);
+}
+.summaryList{
+  margin:6px 0 0 16px;
+  padding:0;
+}
+.summaryList li{
+  margin:3px 0;
+  color:rgba(255,255,255,0.86);
+}
+
 /* ===== MODERN TOGGLE SWITCH ===== */
 .toggle-switch{
   position:relative;
@@ -386,7 +656,6 @@ input:not([type="checkbox"]) {
   display:flex;
   align-items:center;
 }
-/* knob */
 .toggle-slider:before{
   position:absolute;
   content:"";
@@ -399,7 +668,6 @@ input:not([type="checkbox"]) {
   z-index:2;
   box-shadow:0 1px 4px rgba(0,0,0,0.3);
 }
-/* icons inside track */
 .toggle-icon{
   position:absolute;
   font-size:11px;
@@ -410,17 +678,11 @@ input:not([type="checkbox"]) {
   z-index:1;
 }
 .icon-off{ left:7px; opacity:1; }
-.icon-on{  right:7px; opacity:0; }
-
-/* checked state */
-input:checked + .toggle-slider{
-  background-color:#7b2ff7;
-}
-input:checked + .toggle-slider:before{
-  transform:translateX(24px);
-}
+.icon-on{ right:7px; opacity:0; }
+input:checked + .toggle-slider{ background-color:#7b2ff7; }
+input:checked + .toggle-slider:before{ transform:translateX(24px); }
 input:checked + .toggle-slider .icon-off{ opacity:0; }
-input:checked + .toggle-slider .icon-on{  opacity:1; }
+input:checked + .toggle-slider .icon-on{ opacity:1; }
 
 .toggle-label{
   font-size:14px;
@@ -429,22 +691,16 @@ input:checked + .toggle-slider .icon-on{  opacity:1; }
   user-select:none;
   line-height:1;
 }
-
 </style>
 </head>
 
 <body>
-
-<!-- cursor glow -->
 <div id="glow"></div>
-
-<!-- Toast notification -->
 <div id="toast"></div>
 
 <!-- Glass confirm modal -->
 <div id="confirmOverlay">
   <div id="confirmBox">
-    <div class="confirm-icon"></div>
     <p>Delete this note?</p>
     <div class="confirm-btns">
       <button id="confirmYes">Delete</button>
@@ -453,11 +709,33 @@ input:checked + .toggle-slider .icon-on{  opacity:1; }
   </div>
 </div>
 
+<!-- Preview Modal -->
+<div id="previewOverlay">
+  <div id="previewBox">
+    <div class="previewHeader">
+      <button class="backBtn" id="backBtn" type="button" onclick="goBackFromSummary()">←</button>
+      <div id="previewTitle"></div>
+      <button class="previewClose" type="button" onclick="closePreview()">&times;</button>
+    </div>
+
+    <div class="previewContentArea" id="previewScrollArea">
+      <img id="previewImage" alt="preview">
+      <div id="pdfPreviewContainer">
+        <canvas id="pdfCanvas"></canvas>
+      </div>
+      <div id="previewContent"></div>
+    </div>
+
+    <div class="previewActions">
+      <button class="aiSummaryBtn" id="aiSummaryBtn" type="button" onclick="getAISummary()">AI Summary</button>
+    </div>
+  </div>
+</div>
+
 <div class="logo">NoteVault</div>
 <button class="logout" onclick="logout()">Logout</button>
 
 <div class="container">
-
   <h1 id="welcome">NoteVault</h1>
 
   <div class="card">
@@ -468,64 +746,48 @@ input:checked + .toggle-slider .icon-on{  opacity:1; }
       <label class="toggle-switch" for="publicToggle">
         <input type="checkbox" id="publicToggle">
         <span class="toggle-slider">
-          <span class="toggle-icon icon-off">👁️‍🗨️</span>
-          <span class="toggle-icon icon-on">👁️</span>
+          <span class="toggle-icon icon-off">🔒</span>
+          <span class="toggle-icon icon-on">🌐</span>
         </span>
       </label>
       <label class="toggle-label" for="publicToggle">Make Public</label>
     </div>
-    <button class="btn" onclick="upload()">Upload</button>
+    <button class="btn" id="uploadBtn" onclick="upload()">Upload</button>
+  </div>
+
+  <div class="search-container">
+    <svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="9" cy="9" r="7" fill="none" stroke="white" stroke-width="1.5"/>
+      <line x1="16" y1="16" x2="21" y2="21" stroke="white" stroke-width="1.5"/>
+    </svg>
+    <input type="text" class="search-bar" id="searchBar" placeholder="Search by title or subject...">
   </div>
 
   <div id="files"></div>
-
 </div>
 
 <script>
+/* PDF.js worker */
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 /* ===== CURSOR GLOW ===== */
 const isMobile = window.matchMedia("(pointer: coarse)").matches;
-
 if(!isMobile){
-  // Desktop: follow mouse
   document.addEventListener("mousemove", e => {
     const glow = document.getElementById("glow");
-    if(glow){
-      glow.style.left = e.clientX + "px";
-      glow.style.top  = e.clientY + "px";
-    }
+    if(glow){ glow.style.left = e.clientX + "px"; glow.style.top  = e.clientY + "px"; }
   });
 } else {
-  // Mobile: move to tap position, then drift randomly
   const glow = document.getElementById("glow");
-  let targetX = window.innerWidth / 2;
-  let targetY = window.innerHeight / 2;
-  let currentX = targetX;
-  let currentY = targetY;
-
-  // On tap, snap to touch position
-  document.addEventListener("touchstart", e => {
-    targetX = e.touches[0].clientX;
-    targetY = e.touches[0].clientY;
-  }, { passive: true });
-
-  // Pick a new random target every 3-5 seconds
-  function pickNewTarget(){
-    targetX = Math.random() * window.innerWidth;
-    targetY = Math.random() * window.innerHeight;
-    const next = 3000 + Math.random() * 2000;
-    setTimeout(pickNewTarget, next);
-  }
+  let targetX = window.innerWidth / 2, targetY = window.innerHeight / 2;
+  let currentX = targetX, currentY = targetY;
+  document.addEventListener("touchstart", e => { targetX = e.touches[0].clientX; targetY = e.touches[0].clientY; }, { passive:true });
+  function pickNewTarget(){ targetX = Math.random() * window.innerWidth; targetY = Math.random() * window.innerHeight; setTimeout(pickNewTarget, 3000 + Math.random() * 2000); }
   pickNewTarget();
-
-  // Smoothly interpolate glow toward target every frame
   function animateGlow(){
     currentX += (targetX - currentX) * 0.02;
     currentY += (targetY - currentY) * 0.02;
-    if(glow){
-      glow.style.left = currentX + "px";
-      glow.style.top  = currentY + "px";
-    }
+    if(glow){ glow.style.left = currentX + "px"; glow.style.top  = currentY + "px"; }
     requestAnimationFrame(animateGlow);
   }
   animateGlow();
@@ -540,35 +802,37 @@ const firebaseConfig = {
   authDomain: "notevalt-1be63.firebaseapp.com",
   projectId:  "notevalt-1be63"
 };
-
 firebase.initializeApp(firebaseConfig);
-
 const db   = firebase.firestore();
 const auth = firebase.auth();
 
+/* ===== GLOBAL ===== */
+let currentPreviewData = null;
+let currentFileType = null;
+let isViewingSummary = false;
+let originalPreviewTitle = null;
+/* For restoring text/code preview */
+let originalPreviewText = "";
+
 /* == AUTH == */
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    location.href = "index.html";
-  } else {
-    document.getElementById("welcome").innerText =
-      "Welcome, " + (user.displayName || user.email.split("@")[0]);
+  if (!user) location.href = "index.html";
+  else {
+    document.getElementById("welcome").innerText = "Welcome, " + (user.displayName || user.email.split("@")[0]);
     loadNotes();
   }
 });
 
-/* ===== TOAST (bottom-right in-app notification) ===== */
+/* ===== TOAST ===== */
 function showToast(message, type = "info") {
   const toast = document.getElementById("toast");
   toast.textContent = message;
   toast.className = type + " show";
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => {
-    toast.className = type;
-  }, 3000);
+  toast._timer = setTimeout(() => { toast.className = type; }, 3000);
 }
 
-/* ===== GLASS CONFIRM MODAL ===== */
+/* ===== CONFIRM MODAL ===== */
 function showConfirm(onConfirm) {
   const overlay = document.getElementById("confirmOverlay");
   overlay.classList.add("show");
@@ -576,67 +840,65 @@ function showConfirm(onConfirm) {
   const yes = document.getElementById("confirmYes");
   const no  = document.getElementById("confirmNo");
 
-  // Clone to remove old listeners
   const newYes = yes.cloneNode(true);
   const newNo  = no.cloneNode(true);
   yes.parentNode.replaceChild(newYes, yes);
   no.parentNode.replaceChild(newNo, no);
 
-  newYes.onclick = () => {
-    overlay.classList.remove("show");
-    onConfirm();
+  const close = () => overlay.classList.remove("show");
+
+  newYes.onclick = () => { close(); onConfirm(); };
+  newNo.onclick  = close;
+
+  const onKey = (e) => {
+    if (e.key === "Escape") { close(); document.removeEventListener("keydown", onKey); }
   };
-  newNo.onclick = () => {
-    overlay.classList.remove("show");
+  document.addEventListener("keydown", onKey);
+
+  overlay.onclick = (e) => {
+    if (e.target === overlay) { close(); document.removeEventListener("keydown", onKey); }
   };
 }
 
 /* ===== LOGOUT ===== */
-function logout(){
-  auth.signOut().then(() => location.href = "index.html");
-}
+function logout(){ auth.signOut().then(() => location.href = "index.html"); }
 
 /* ===== UPLOAD ===== */
 let isUploading = false;
-
 function upload(){
-  if(isUploading) return; // block multiple clicks
+  if(isUploading) return;
 
-  const file    = document.getElementById("file").files[0];
-  const title   = document.getElementById("title").value;
-  const subject = document.getElementById("subject").value;
+  const file     = document.getElementById("file").files[0];
+  const title    = document.getElementById("title").value;
+  const subject  = document.getElementById("subject").value;
   const isPublic = document.getElementById("publicToggle").checked;
 
   if (!file){ showToast("Please select a file", "error"); return; }
 
   isUploading = true;
-  const uploadBtn = document.querySelector('.btn');
+  const uploadBtn = document.getElementById("uploadBtn");
   uploadBtn.disabled = true;
   uploadBtn.textContent = "Uploading...";
 
   const reader = new FileReader();
-
   reader.onload = async function(e){
-    try {
+    try{
       await db.collection("notes").add({
-        userId:    auth.currentUser.uid,
-        file:      e.target.result,
-        fileName:  file.name,
-        title:     title,
-        subject:   subject,
+        userId: auth.currentUser.uid,
+        file: e.target.result,
+        fileName: file.name,
+        title, subject,
         visibility: isPublic ? "public" : "private",
         createdAt: Date.now()
       });
 
-      showToast("File uploaded successfully! ✓", "success");
-
-      document.getElementById("file").value    = "";
-      document.getElementById("title").value   = "";
+      showToast("File uploaded successfully!", "success");
+      document.getElementById("file").value = "";
+      document.getElementById("title").value = "";
       document.getElementById("subject").value = "";
       document.getElementById("publicToggle").checked = false;
-
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch(err){
+      console.error(err);
       showToast("Upload failed. Please try again.", "error");
     } finally {
       isUploading = false;
@@ -645,7 +907,6 @@ function upload(){
       loadNotes();
     }
   };
-
   reader.readAsDataURL(file);
 }
 
@@ -656,18 +917,326 @@ function deleteNote(id, ownerId){
     showToast("You can only delete your own notes.", "error");
     return;
   }
-
   showConfirm(() => {
     db.collection("notes").doc(id).delete()
-      .then(() => {
-        showToast("Note deleted successfully! ✓", "success");
-        loadNotes();
-      })
-      .catch(err => {
-        console.error(err);
-        showToast("Delete failed. Please try again.", "error");
-      });
+      .then(() => { showToast("Note deleted successfully!", "success"); loadNotes(); })
+      .catch(err => { console.error(err); showToast("Delete failed. Please try again.", "error"); });
   });
+}
+
+/* ===== FILE TYPE ===== */
+function getFileType(fileName) {
+  const ext = (fileName.split('.').pop() || "").toLowerCase();
+  if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'image';
+  if (ext === 'pdf') return 'pdf';
+  if (['py','js','ts','jsx','tsx','html','css','java','cpp','c','cs','php','rb','go','rs','swift','kt','json','xml','yaml','yml','sql','sh','bash','md','txt','csv'].includes(ext)) {
+    if(['txt','md','csv','json','xml','yaml','yml','sql','sh','bash'].includes(ext)) return 'text';
+    return 'code';
+  }
+  return 'other';
+}
+
+/* ===== PDF: base64 -> Uint8Array (required) ===== */
+function base64ToUint8Array(base64) {
+  const raw = atob(base64);
+  const uint8Array = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) uint8Array[i] = raw.charCodeAt(i);
+  return uint8Array;
+}
+function getPdfBytesFromDataUrl(dataUrl){
+  const base64 = dataUrl.split(",")[1] || "";
+  return base64ToUint8Array(base64);
+}
+
+/* ===== PDF PREVIEW ===== */
+async function displayPDFPreview(pdfDataUrl) {
+  const bytes = getPdfBytesFromDataUrl(pdfDataUrl);
+  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const page = await pdf.getPage(1);
+  const canvas = document.getElementById("pdfCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const viewport = page.getViewport({ scale: 1.25 });
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+
+  await page.render({ canvasContext: ctx, viewport }).promise;
+}
+
+/* ===== PDF TEXT EXTRACTION (SUMMARY SOURCE) ===== */
+async function extractPDFText(pdfDataUrl) {
+  const bytes = getPdfBytesFromDataUrl(pdfDataUrl);
+  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+
+  let fullText = "";
+  const maxPages = Math.min(pdf.numPages, 15);
+
+  for(let p = 1; p <= maxPages; p++){
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const pageText = tc.items.map(it => it.str).join(" ").replace(/\s+/g, " ").trim();
+    if(pageText) fullText += pageText + " ";
+  }
+
+  return fullText.trim();
+}
+
+/* ===== SUMMARY OUTPUT (NO ICONS) ===== */
+function escapeHtml(str){
+  return (str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function analyzeCodeContent(code, fileName) {
+  const ext = (fileName.split('.').pop() || "").toLowerCase();
+  let codeType = 'Code';
+  let description = 'Code file';
+
+  if (['js','jsx','ts','tsx'].includes(ext)) { codeType = 'JavaScript'; description = 'JavaScript/TypeScript source code'; }
+  else if (ext === 'py') { codeType = 'Python'; description = 'Python source code'; }
+  else if (['html','htm'].includes(ext)) { codeType = 'HTML'; description = 'Structured HTML document'; }
+  else if (ext === 'css') { codeType = 'CSS'; description = 'Stylesheet'; }
+  else if (ext === 'java') { codeType = 'Java'; description = 'Java source code'; }
+  else if (ext === 'sql') { codeType = 'SQL'; description = 'Database query/script'; }
+  else { codeType = ext ? ext.toUpperCase() : 'File'; description = 'Document'; }
+
+  return { codeType, description };
+}
+
+function generateCodeSummaryHTML(code, fileName) {
+  const { codeType, description } = analyzeCodeContent(code, fileName);
+  const lines = code.split('\n').length;
+  const functions = (code.match(/function|def |const.*=.*=>|=>|class /g) || []).length;
+  const comments = (code.match(/\/\/|#|\/\*/g) || []).length;
+
+  return `
+    <div class="summaryWrap">
+      <h3 class="summaryTitle">Summary</h3>
+
+      <div class="summarySection" style="border-top:none; padding-top:0; margin-top:0;">
+        <span class="summaryLabel">File</span>
+        <p class="summaryValue"><strong>${escapeHtml(fileName)}</strong></p>
+      </div>
+
+      <div class="summarySection">
+        <span class="summaryLabel">Type</span>
+        <p class="summaryValue"><em>${escapeHtml(codeType)}</em></p>
+      </div>
+
+      <div class="summarySection">
+        <span class="summaryLabel">Description</span>
+        <p class="summaryValue">${escapeHtml(description)}</p>
+      </div>
+
+      <div class="summarySection">
+        <span class="summaryLabel">Stats</span>
+        <ul class="summaryList">
+          <li><strong>Lines:</strong> ${lines}</li>
+          <li><strong>Functions/Methods:</strong> ${functions}</li>
+          <li><strong>Comments:</strong> ${comments}</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function generateSimpleSummaryHTML(text) {
+  const cleaned = (text || "").trim().replace(/\s+/g, " ");
+  const sentences = cleaned.match(/[^.!?]+[.!?]+/g) || (cleaned ? [cleaned] : []);
+  const cleanSentences = sentences.map(s => s.trim()).filter(Boolean);
+
+  let summaryText = "Unable to generate a summary from this content.";
+  if (cleanSentences.length) {
+    const summaryLength = Math.min(3, Math.ceil(cleanSentences.length * 0.5));
+    summaryText = cleanSentences.slice(0, summaryLength).join(" ");
+  }
+
+  return `
+    <div class="summaryWrap">
+      <h3 class="summaryTitle">Summary</h3>
+      <div class="summarySection" style="border-top:none; padding-top:0; margin-top:0;">
+        <span class="summaryLabel">Overview</span>
+        <p class="summaryValue">${escapeHtml(summaryText)}</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ===== PREVIEW MODAL ===== */
+async function openPreview(data) {
+  currentPreviewData = data;
+  currentFileType = getFileType(data.fileName);
+  isViewingSummary = false;
+
+  const overlay = document.getElementById("previewOverlay");
+  const titleEl = document.getElementById("previewTitle");
+  const imgEl = document.getElementById("previewImage");
+  const pdfContainer = document.getElementById("pdfPreviewContainer");
+  const contentEl = document.getElementById("previewContent");
+  const aiBtn = document.getElementById("aiSummaryBtn");
+  const backBtn = document.getElementById("backBtn");
+  const scrollArea = document.getElementById("previewScrollArea");
+
+  imgEl.style.display = "none";
+  pdfContainer.style.display = "none";
+  contentEl.style.display = "none";
+  contentEl.textContent = "";
+  contentEl.innerHTML = "";
+  aiBtn.classList.remove("show-ai");
+  backBtn.classList.remove("show");
+  aiBtn.textContent = "AI Summary";
+  aiBtn.disabled = false;
+
+  originalPreviewTitle = data.title || data.fileName || "File Preview";
+  titleEl.textContent = originalPreviewTitle;
+  originalPreviewText = "";
+
+  scrollArea.scrollTop = 0;
+
+  if (currentFileType === 'image') {
+    imgEl.src = data.file;
+    imgEl.style.display = "block";
+  } else if (currentFileType === 'pdf') {
+    await displayPDFPreview(data.file);
+    pdfContainer.style.display = "block";
+    aiBtn.classList.add("show-ai");
+  } else if (currentFileType === 'code' || currentFileType === 'text') {
+    const base64 = (data.file.split(",")[1] || "");
+    const text = atob(base64);
+    originalPreviewText = text;
+    contentEl.textContent = text;
+    contentEl.style.display = "block";
+    aiBtn.classList.add("show-ai");
+  } else {
+    contentEl.textContent = `File: ${data.fileName}\n\nThis file type cannot be previewed here. Please download to view.`;
+    contentEl.style.display = "block";
+  }
+
+  overlay.classList.add("show");
+
+  const onKey = (e) => {
+    if (e.key === "Escape") { closePreview(); document.removeEventListener("keydown", onKey); }
+  };
+  document.addEventListener("keydown", onKey);
+
+  overlay.onclick = (e) => {
+    if (e.target === overlay) { closePreview(); document.removeEventListener("keydown", onKey); }
+  };
+}
+
+function closePreview() {
+  const overlay = document.getElementById("previewOverlay");
+  overlay.classList.remove("show");
+  currentPreviewData = null;
+  currentFileType = null;
+  isViewingSummary = false;
+}
+
+function goBackFromSummary() {
+  if (!isViewingSummary) return;
+
+  isViewingSummary = false;
+
+  const titleEl = document.getElementById("previewTitle");
+  const imgEl = document.getElementById("previewImage");
+  const pdfContainer = document.getElementById("pdfPreviewContainer");
+  const contentEl = document.getElementById("previewContent");
+  const aiBtn = document.getElementById("aiSummaryBtn");
+  const backBtn = document.getElementById("backBtn");
+  const scrollArea = document.getElementById("previewScrollArea");
+
+  titleEl.textContent = originalPreviewTitle;
+
+  imgEl.style.display = "none";
+  pdfContainer.style.display = "none";
+  contentEl.style.display = "none";
+
+  if (currentFileType === "pdf") {
+    pdfContainer.style.display = "block";
+  } else if (currentFileType === "image") {
+    imgEl.style.display = "block";
+  } else if (currentFileType === "code" || currentFileType === "text") {
+    contentEl.innerHTML = "";
+    contentEl.textContent = originalPreviewText || "";
+    contentEl.style.display = "block";
+  } else {
+    contentEl.innerHTML = "";
+    contentEl.textContent = `File: ${(currentPreviewData && currentPreviewData.fileName) || ""}\n\nThis file type cannot be previewed here. Please download to view.`;
+    contentEl.style.display = "block";
+  }
+
+  backBtn.classList.remove("show");
+  aiBtn.classList.add("show-ai");
+  scrollArea.scrollTop = 0;
+}
+
+/* ===== AI SUMMARY ===== */
+async function getAISummary() {
+  if (!currentPreviewData || !currentFileType) return;
+
+  const btn = document.getElementById("aiSummaryBtn");
+  const contentEl = document.getElementById("previewContent");
+  const titleEl = document.getElementById("previewTitle");
+  const pdfContainer = document.getElementById("pdfPreviewContainer");
+  const imgEl = document.getElementById("previewImage");
+  const backBtn = document.getElementById("backBtn");
+  const scrollArea = document.getElementById("previewScrollArea");
+
+  btn.disabled = true;
+  btn.textContent = "Generating...";
+
+  try{
+    let summaryHTML = "";
+
+    if (currentFileType === "pdf") {
+      showToast("Extracting PDF text...", "info");
+      const text = await extractPDFText(currentPreviewData.file);
+
+      if (!text || text.length < 30) {
+        throw new Error("This PDF has no selectable text (scanned image PDF).");
+      }
+      summaryHTML = generateSimpleSummaryHTML(text);
+
+    } else if (currentFileType === "code") {
+      const base64 = (currentPreviewData.file.split(",")[1] || "");
+      const code = atob(base64);
+      summaryHTML = generateCodeSummaryHTML(code, currentPreviewData.fileName);
+
+    } else if (currentFileType === "text") {
+      const base64 = (currentPreviewData.file.split(",")[1] || "");
+      const text = atob(base64);
+      summaryHTML = generateSimpleSummaryHTML(text);
+
+    } else {
+      throw new Error("Summary is supported for PDF/text/code only.");
+    }
+
+    isViewingSummary = true;
+
+    pdfContainer.style.display = "none";
+    imgEl.style.display = "none";
+    contentEl.style.display = "block";
+    contentEl.innerHTML = summaryHTML;
+
+    titleEl.textContent = "Summary";
+
+    backBtn.classList.add("show");
+    btn.classList.remove("show-ai");
+
+    scrollArea.scrollTop = 0;
+
+    showToast("Summary generated!", "success");
+  } catch(err){
+    console.error(err);
+    showToast(err.message || "Failed to generate summary.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "AI Summary";
+  }
 }
 
 /* ===== LOAD NOTES ===== */
@@ -676,67 +1245,101 @@ function loadNotes(){
   container.innerHTML = "";
 
   db.collection("notes").orderBy("createdAt", "desc").get()
-  .then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
+    .then(snapshot => {
+      const docs = [];
+      snapshot.forEach(doc => docs.push({ id: doc.id, data: doc.data() }));
 
-      const visibility = data.visibility !== undefined ? data.visibility : "public";
+      docs.forEach(({ id, data }) => {
+        const visibility = data.visibility !== undefined ? data.visibility : "public";
+        if (visibility !== "public" && data.userId !== auth.currentUser.uid) return;
 
-      if (visibility !== "public" && data.userId !== auth.currentUser.uid) {
-        return;
-      }
+        const card = document.createElement("div");
+        card.className = "fileCard";
 
-      const card = document.createElement("div");
-      card.className = "fileCard";
+        const preview = document.createElement("button");
+        preview.className = "previewIcon";
+        preview.type = "button";
+        preview.title = "Preview";
+        preview.innerHTML = `
+          <svg class="icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7z"></path>
+            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+          </svg>
+        `;
+        preview.onclick = (e) => { e.stopPropagation(); openPreview(data); };
 
-      const del = document.createElement("span");
-      del.className = "deleteIcon";
-      del.textContent = "×";
-      del.onclick = function(e){
-        e.stopPropagation();
-        deleteNote(doc.id, data.userId);
-      };
+        const del = document.createElement("button");
+        del.className = "deleteIcon";
+        del.type = "button";
+        del.title = "Delete";
+        del.innerHTML = `
+          <svg class="icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 7h12"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 7l1-2h4l1 2"></path>
+            <path d="M7 7l1 14h8l1-14"></path>
+          </svg>
+        `;
+        del.onclick = (e) => { e.stopPropagation(); deleteNote(id, data.userId); };
 
-      const canDelete = data.userId === auth.currentUser.uid || auth.currentUser.email === ADMIN_EMAIL;
+        const canDelete = data.userId === auth.currentUser.uid || auth.currentUser.email === ADMIN_EMAIL;
 
-      card.addEventListener("mouseenter", function(){
-        card.classList.add("hovered");
-        if(canDelete) del.style.display = "flex";
+        card.addEventListener("mouseenter", () => {
+          card.classList.add("hovered");
+          preview.style.display = "flex";
+          if (canDelete) del.style.display = "flex";
+        });
+        card.addEventListener("mouseleave", () => {
+          card.classList.remove("hovered");
+          preview.style.display = "none";
+          del.style.display = "none";
+        });
+
+        const h3 = document.createElement("h3");
+        h3.textContent = data.title || "No Title";
+
+        const p = document.createElement("p");
+        p.textContent = data.subject || "";
+
+        const a = document.createElement("a");
+        a.href = data.file;
+        a.download = data.fileName || "file";
+
+        const dlBtn = document.createElement("button");
+        dlBtn.className = "downloadBtn";
+        dlBtn.type = "button";
+        dlBtn.textContent = "Download";
+        a.appendChild(dlBtn);
+
+        card.appendChild(preview);
+        card.appendChild(del);
+        card.appendChild(h3);
+        card.appendChild(p);
+        card.appendChild(a);
+
+        const idx = container.children.length;
+        card.style.animationDelay = (idx * 0.08) + "s";
+        container.appendChild(card);
       });
-      card.addEventListener("mouseleave", function(){
-        card.classList.remove("hovered");
-        del.style.display = "none";
-      });
 
-      const h3 = document.createElement("h3");
-      h3.textContent = data.title || "No Title";
-
-      const p = document.createElement("p");
-      p.textContent = data.subject || "";
-
-      const a = document.createElement("a");
-      a.href     = data.file;
-      a.download = data.fileName || "file";
-
-      const dlBtn = document.createElement("button");
-      dlBtn.className   = "downloadBtn";
-      dlBtn.textContent = "Download";
-      a.appendChild(dlBtn);
-
-      card.appendChild(del);
-      card.appendChild(h3);
-      card.appendChild(p);
-      card.appendChild(a);
-
-      const idx = container.children.length;
-      card.style.animationDelay = (idx * 0.08) + "s";
-
-      container.appendChild(card);
+      applySearchFilter();
     });
-  });
 }
 
-</script>
+/* ===== SEARCH ===== */
+function applySearchFilter(){
+  const term = (document.getElementById("searchBar").value || "").toLowerCase().trim();
+  const cards = document.querySelectorAll("#files .fileCard");
+  if(!term){ cards.forEach(c => c.style.display = ""); return; }
 
+  cards.forEach(card => {
+    const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
+    const subject = (card.querySelector("p")?.textContent || "").toLowerCase();
+    card.style.display = (title.includes(term) || subject.includes(term)) ? "" : "none";
+  });
+}
+document.getElementById("searchBar").addEventListener("input", applySearchFilter);
+</script>
 </body>
 </html>
